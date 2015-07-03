@@ -1,0 +1,12 @@
+# ployment project .gitignore
+
+# don't include binaries 
+ployment/ployment
+
+# don't include config
+config.json
+
+# editor stuff
+.idea
+*.swp
+*sublime-*
