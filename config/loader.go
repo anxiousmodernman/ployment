@@ -6,8 +6,9 @@ import (
 )
 
 type PloymentConfig struct {
-	Repositoryurl   string `json:"repositoryUrl"`
-	Targetdirectory string `json:"targetDirectory"`
+	RepositoryUrl   string `json:"repositoryUrl"`
+	TargetDirectory string `json:"targetDirectory"`
+	Command         string `json:"command"`
 }
 
 func FromFile(path string) (PloymentConfig, error) {

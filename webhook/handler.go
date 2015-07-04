@@ -15,11 +15,11 @@ import (
 )
 
 // get rid of these
-const repoUrl string = "https://github.com/anxiousmodernman/coleman-dot-codes/zipball/master"
-const tempDir string = "/Users/coleman/temp"
+//const repoUrl string = "https://github.com/anxiousmodernman/coleman-dot-codes/zipball/master"
+//const tempDir string = "/Users/coleman/temp"
 
 type AppContext struct {
-	config.PloymentConfig
+	Config config.PloymentConfig
 }
 
 type Hook struct {
@@ -32,12 +32,13 @@ type Hook struct {
 // make Hook satisfy http.Handler
 func (fn Hook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := fn.Handler(w, r, fn.AppContext); err != nil {
+		log.Fatal("Internal server error", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
 
 func WebhookHandler(w http.ResponseWriter, r *http.Request, ctx *AppContext) error {
-	urlReader, err := getReaderFromUrl(repoUrl)
+	urlReader, err := getReaderFromUrl(ctx.Config.RepositoryUrl)
 	if err != nil {
 		return fmt.Errorf("Could not get GitHub url: %s", err)
 	}
@@ -48,7 +49,7 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request, ctx *AppContext) err
 	}
 
 	for _, zf := range zr.File {
-		if err := writeFile(zf, tempDir); err != nil {
+		if err := writeFile(zf, ctx.Config.TargetDirectory); err != nil {
 			return fmt.Errorf("Unable to write file %s. Error: %s", zf.Name, err)
 		}
 
