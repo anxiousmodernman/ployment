@@ -3,6 +3,7 @@ package webhook
 import (
 	"archive/zip"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -14,10 +15,6 @@ import (
 	"github.com/anxiousmodernman/ployment/config"
 )
 
-// get rid of these
-//const repoUrl string = "https://github.com/anxiousmodernman/coleman-dot-codes/zipball/master"
-//const tempDir string = "/Users/coleman/temp"
-
 type AppContext struct {
 	Config config.PloymentConfig
 }
@@ -27,9 +24,7 @@ type Hook struct {
 	Handler func(http.ResponseWriter, *http.Request, *AppContext) error
 }
 
-//type Hook func(res http.ResponseWriter, req *http.Request) error
-
-// make Hook satisfy http.Handler
+// Hook satisfies http.Handler
 func (fn Hook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := fn.Handler(w, r, fn.AppContext); err != nil {
 		log.Fatal("Internal server error", err)
@@ -54,7 +49,28 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request, ctx *AppContext) err
 		}
 
 	}
+
+	// list the contents of the target directory
+	// get the path of the (only?) directory
+	// copy the sub directories recursively to new target
+	repoContainerDirectoryGlobPattern := ctx.Config.TargetDirectory + `/*`
+	names, err := filepath.Glob(repoContainerDirectoryGlobPattern)
+	if names == nil {
+		return errors.New("Names was nil")
+	}
+	if err != nil {
+		return err
+	}
+
+	err := clearServeDirContents(ctx.Config.ServeDirectory)
+
 	return nil
+}
+
+func clearServeDirContents(dir string) error {
+
+	return nil
+
 }
 
 func getReaderFromUrl(url string) (*bytes.Reader, error) {
