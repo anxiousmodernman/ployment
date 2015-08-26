@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -62,8 +63,14 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request, ctx *AppContext) err
 		return err
 	}
 
-	err := clearServeDirContents(ctx.Config.ServeDirectory)
-
+	// execute post-hook command
+	fmt.Println("Source:", names[0])
+	fmt.Println("Target:", ctx.Config.ServeDirectory)
+	cmd := exec.Command("/bin/bash", "../post-hook.sh", names[0], ctx.Config.ServeDirectory)
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
